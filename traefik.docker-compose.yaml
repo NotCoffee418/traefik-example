@@ -1,0 +1,36 @@
+version: "3.8"
+
+# Replace YOUREMAIL@ADDRESS with your email address
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik-public
+    restart: always
+    ports:
+      #- "80:80"
+      - "10443:443"
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik_acme_data:/letsencrypt"
+    command:
+      - "--log.level=INFO"
+      - "--global.checkNewVersion=true"
+      - "--global.sendAnonymousUsage=false"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.network=web"
+      - "--providers.docker.exposedByDefault=false"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.primary.acme.tlschallenge=true"
+      - "--certificatesresolvers.primary.acme.email=YOUREMAIL@ADDRESS" # replace with your email
+      - "--certificatesresolvers.primary.acme.storage=/letsencrypt/acme.json" # may need to set permissions on this file
+    networks:
+      - web
+networks:
+  web:
+    external: true
+    name: web # docker network create web
+
+volumes:
+  traefik_acme_data:

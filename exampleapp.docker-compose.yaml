@@ -1,0 +1,31 @@
+version: "3.8"
+
+# Replace containernamehere with the name you want to use for the container
+# Replace APPIMAGEHERE with the image you want to use
+# Replace APPSHORTNAMEHERE with the name you want to use for the app
+# Replace DOMAINHERE with the domain you want to use for the app
+services:
+  containernamehere:
+    image: APPIMAGEHERE
+    container_name: containernamehere
+    restart: always
+    ports:
+      - "8081:8080" # Optional, loadbalancer will does not need this
+    volumes:
+      - ./data:/app/backend/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.APPSHORTNAMEHERE.entrypoints=websecure"
+      - "traefik.http.routers.APPSHORTNAMEHEREtls=true"
+      - "traefik.http.routers.APPSHORTNAMEHERE.tls.certresolver=primary"
+      - "traefik.http.routers.APPSHORTNAMEHERE.rule=Host(`DOMAINHERE`)"
+      - "traefik.http.services.APPSHORTNAMEHERE.loadbalancer.server.port=8080"
+      - "traefik.docker.network=web"
+    networks:
+      - optional-internal-network # Can be used to not force other services in this compose file to the web network
+      - web
+
+networks:
+  optional-internal-network:
+  web:
+    external: true
